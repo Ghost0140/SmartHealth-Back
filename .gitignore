@@ -1,24 +1,44 @@
-# Compiled class file
-*.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+### Archivos de compilación (Maven y Gradle)
+target/
+build/
+bin/
 *.jar
 *.war
-*.nar
 *.ear
+*.nar
 *.zip
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+### Logs y temporales
+*.log
 hs_err_pid*
 replay_pid*
+*.class
+
+### IDEs (IntelliJ, VS Code, Eclipse/STS, NetBeans)
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+.springBeans
+.sts4-cache
+.nb-gradle/
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+
+### Sistema Operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
+.mtj.tmp/
+
+### Maven Wrapper (Opcional, si no lo quieres versionar)
+.mvn/wrapper/maven-wrapper.jar
