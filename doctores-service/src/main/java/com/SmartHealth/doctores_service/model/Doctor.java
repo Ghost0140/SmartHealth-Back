@@ -1,9 +1,7 @@
 package com.SmartHealth.doctores_service.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,16 +10,27 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "doctores")
 public class Doctor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Integer idDoctor;
-    public String nombres;
-    public String apellidos;
-    public String especialidad;
-    public String disponibilidad;
-    public Boolean estado;
+    private Integer idDoctor;
 
+    @NotBlank(message = "El nombre es obligatorio")
+    @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
+    private String nombres;
 
+    @NotBlank(message = "Los apellidos son obligatorios")
+    @Size(min = 2, max = 100, message = "Los apellidos deben tener entre 2 y 100 caracteres")
+    private String apellidos;
+
+    @NotBlank(message = "La especialidad es obligatoria")
+    private String especialidad;
+
+    @NotBlank(message = "La disponibilidad es obligatoria")
+    @Pattern(regexp = "DISPONIBLE|NO_DISPONIBLE", message = "La disponibilidad debe ser DISPONIBLE o NO_DISPONIBLE")
+    private String disponibilidad;
+
+    private Boolean estado = true;
 }
