@@ -2,6 +2,7 @@ package com.SmartHealth.pacientes_service.controller;
 
 import com.SmartHealth.pacientes_service.model.Paciente;
 import com.SmartHealth.pacientes_service.service.PacienteService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,43 +19,38 @@ public class PacienteController {
 
     @GetMapping
     public ResponseEntity<List<Paciente>> listarPacientes() {
-        List<Paciente> pacientes = service.listarPacientes();
-        return new ResponseEntity<>(pacientes, HttpStatus.OK);
+        return ResponseEntity.ok(service.listarPacientes());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Paciente> obtenerPacientePorId(@PathVariable Integer id) {
         Paciente paciente = service.pacientePorId(id);
         if (paciente != null) {
-            return new ResponseEntity<>(paciente, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.ok(paciente);
         }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public ResponseEntity<Paciente> registrarPaciente(@RequestBody Paciente paciente) {
-        Paciente nuevoPaciente = service.registrarPaciente(paciente);
-        return new ResponseEntity<>(nuevoPaciente, HttpStatus.CREATED);
+    public ResponseEntity<Paciente> registrarPaciente(@Valid @RequestBody Paciente paciente) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.registrarPaciente(paciente));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Paciente> editarPaciente(@PathVariable Integer id, @RequestBody Paciente paciente) {
+    public ResponseEntity<Paciente> editarPaciente(@PathVariable Integer id, @Valid @RequestBody Paciente paciente) {
         Paciente pacienteActualizado = service.editarPaciente(id, paciente);
         if (pacienteActualizado != null) {
-            return new ResponseEntity<>(pacienteActualizado, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.ok(pacienteActualizado);
         }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Paciente> eliminarPaciente(@PathVariable Integer id) {
         Paciente pacienteDesactivado = service.cambiarEstadoPaciente(id);
         if (pacienteDesactivado != null) {
-            return new ResponseEntity<>(pacienteDesactivado, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.ok(pacienteDesactivado);
         }
+        return ResponseEntity.notFound().build();
     }
 }
