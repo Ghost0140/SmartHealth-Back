@@ -42,3 +42,4 @@ Desktop.ini
 
 ### Maven Wrapper (Opcional, si no lo quieres versionar)
 .mvn/wrapper/maven-wrapper.jar
+/.metadata/
