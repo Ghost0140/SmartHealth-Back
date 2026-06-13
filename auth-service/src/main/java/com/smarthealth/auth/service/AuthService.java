@@ -22,13 +22,39 @@ public class AuthService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    public void registrar(RegistroDTO dto) {
+    public void registrarPaciente(RegistroDTO dto) {
+
         Usuario u = new Usuario();
-        u.setUsername(dto.getUsername());    
+
+        u.setUsername(dto.getUsername());
         u.setPassword(passwordEncoder.encode(dto.getPassword()));
-        u.setRol(dto.getRol());
+        u.setRol("PACIENTE");
         u.setActivo(true);
-        
+
+        repo.save(u);
+    }
+    
+    public void registrarDoctor(RegistroDTO dto) {
+
+        Usuario u = new Usuario();
+
+        u.setUsername(dto.getUsername());
+        u.setPassword(passwordEncoder.encode(dto.getPassword()));
+        u.setRol("DOCTOR");
+        u.setActivo(true);
+
+        repo.save(u);
+    }
+    
+    public void registrarFarmacia(RegistroDTO dto) {
+
+        Usuario u = new Usuario();
+
+        u.setUsername(dto.getUsername());
+        u.setPassword(passwordEncoder.encode(dto.getPassword()));
+        u.setRol("FARMACIA");
+        u.setActivo(true);
+
         repo.save(u);
     }
     
