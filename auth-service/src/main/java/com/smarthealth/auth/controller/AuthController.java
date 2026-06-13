@@ -30,15 +30,25 @@ public class AuthController {
 	private JwtUtil jwtUtil;
 
 	@PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegistroDTO registroDto) {
-        try {
-            authService.registrar(registroDto);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body("Usuario registrado exitosamente");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al registrar: " + e.getMessage());
-        }
-    }
+	public ResponseEntity<?> registerPaciente(@RequestBody RegistroDTO dto) {
+
+	    authService.registrarPaciente(dto);
+	    return ResponseEntity.status(HttpStatus.CREATED).body("Paciente registrado exitosamente");
+	}
+	
+	@PostMapping("/register-doctor")
+	public ResponseEntity<?> registerDoctor(@RequestBody RegistroDTO dto) {
+
+	    authService.registrarDoctor(dto);
+	    return ResponseEntity.status(HttpStatus.CREATED).body("Doctor registrado exitosamente");
+	}
+	
+	@PostMapping("/register-farmacia")
+	public ResponseEntity<?> registerFarmacia(@RequestBody RegistroDTO dto) {
+
+	    authService.registrarFarmacia(dto);
+	    return ResponseEntity.status(HttpStatus.CREATED).body("Usuario de farmacia registrado exitosamente");
+	}
 	
 	@PostMapping("/login")
 	public Map<String, Object> login(@RequestBody LoginDTO dto) {
