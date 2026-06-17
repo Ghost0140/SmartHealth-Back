@@ -1,0 +1,35 @@
+USE db_pacientes;
+
+INSERT INTO pacientes (nombres, apellidos, dni, telefono, email, estado) VALUES
+('Juan', 'Perez Gomez', '12345678', '987654321', 'juan.perez1@gmail.com', true),
+('Maria', 'Lopez Rojas', '12345679', '987654322', 'maria.lopez2@gmail.com', true),
+('Carlos', 'Sanchez Diaz', '12345680', '987654323', 'carlos.sanchez3@gmail.com', true),
+('Ana', 'Torres Ruiz', '12345681', '987654324', 'ana.torres4@gmail.com', true),
+('Luis', 'Ramirez Vega', '12345682', '987654325', 'luis.ramirez5@gmail.com', true),
+('Lucia', 'Flores Castro', '12345683', '987654326', 'lucia.flores6@gmail.com', true),
+('Miguel', 'Herrera Soto', '12345684', '987654327', 'miguel.herrera7@gmail.com', true),
+('Elena', 'Diaz Morales', '12345685', '987654328', 'elena.diaz8@gmail.com', true),
+('Pedro', 'Gomez Vargas', '12345686', '987654329', 'pedro.gomez9@gmail.com', true),
+('Sofia', 'Mendoza Paredes', '12345687', '987654330', 'sofia.mendoza10@gmail.com', true),
+
+('Jorge', 'Castro Rios', '12345688', '987654331', 'jorge.castro11@gmail.com', true),
+('Paula', 'Reyes Navarro', '12345689', '987654332', 'paula.reyes12@gmail.com', true),
+('Diego', 'Vasquez Flores', '12345690', '987654333', 'diego.vasquez13@gmail.com', true),
+('Camila', 'Ortega Salas', '12345691', '987654334', 'camila.ortega14@gmail.com', true),
+('Fernando', 'Cruz Herrera', '12345692', '987654335', 'fernando.cruz15@gmail.com', true),
+('Valeria', 'Ramos Peña', '12345693', '987654336', 'valeria.ramos16@gmail.com', true),
+('Ricardo', 'Navarro Luna', '12345694', '987654337', 'ricardo.navarro17@gmail.com', true),
+('Andrea', 'Silva Campos', '12345695', '987654338', 'andrea.silva18@gmail.com', true),
+('Jose', 'Mamani Choque', '12345696', '987654339', 'jose.mamani19@gmail.com', true),
+('Patricia', 'Quispe Huaman', '12345697', '987654340', 'patricia.quispe20@gmail.com', true),
+
+('Roberto', 'Valdez Soto', '12345698', '987654341', 'roberto.valdez21@gmail.com', true),
+('Daniela', 'Espinoza Rojas', '12345699', '987654342', 'daniela.espinoza22@gmail.com', true),
+('Hector', 'Campos Diaz', '12345700', '987654343', 'hector.campos23@gmail.com', true),
+('Gabriela', 'Leon Garcia', '12345701', '987654344', 'gabriela.leon24@gmail.com', true),
+('Alberto', 'Flores Medina', '12345702', '987654345', 'alberto.flores25@gmail.com', true),
+('Cecilia', 'Ortiz Vega', '12345703', '987654346', 'cecilia.ortiz26@gmail.com', true),
+('Martin', 'Aguilar Soto', '12345704', '987654347', 'martin.aguilar27@gmail.com', true),
+('Karla', 'Paredes Rios', '12345705', '987654348', 'karla.paredes28@gmail.com', true),
+('Enrique', 'Vargas Salazar', '12345706', '987654349', 'enrique.vargas29@gmail.com', true),
+('Natalia', 'Morales Torres', '12345707', '987654350', 'natalia.morales30@gmail.com', true);
