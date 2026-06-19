@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.farmacia.dto.RegistroRecetaDTO;
 import com.farmacia.feign.CitaFeign;
@@ -37,6 +38,8 @@ public class RecetaService {
         return recetaRepo.findAll();
     }
 
+
+    @Transactional
     public Receta registrarReceta(RegistroRecetaDTO dto) {
 
         CitaFeign cita;
@@ -75,9 +78,12 @@ public class RecetaService {
 
         Receta recetaGuardada = recetaRepo.save(receta);
 
+        // Se incluye idPaciente (tomado de la cita) para que notificaciones
+        // pueda asociar la notificación al paciente correcto.
         RecetaEvent event = new RecetaEvent(
                 recetaGuardada.getIdReceta(),
                 recetaGuardada.getIdCita(),
+                cita.getIdPaciente(),           
                 recetaGuardada.getIdMedicamento(),
                 recetaGuardada.getNombreMedicamento(),
                 recetaGuardada.getCantidad(),

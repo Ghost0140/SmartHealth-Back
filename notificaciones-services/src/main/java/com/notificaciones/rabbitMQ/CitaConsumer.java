@@ -3,6 +3,8 @@ package com.notificaciones.rabbitMQ;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+import com.notificaciones.service.NotificacionService;
+
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,17 +13,21 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class CitaConsumer {
-	
-	 @PostConstruct
-	    public void init() {
-	        System.out.println("CitaConsumer cargado");
-	    }
 
-	@RabbitListener(queues = RabbitMQConfig.CITA_QUEUE)
-	public void recibirCita(String mensaje) {
+    private final NotificacionService notificacionService;
 
-	    System.out.println("MENSAJE RECIBIDO");
-	    System.out.println(mensaje);
+    @PostConstruct
+    public void init() {
+        log.info("CitaConsumer cargado y escuchando cola: {}", RabbitMQConfig.CITA_QUEUE);
+    }
 
-	}
+    @RabbitListener(queues = RabbitMQConfig.CITA_QUEUE)
+    public void recibirCita(CitaEvent event) {
+        log.info("=================================");
+        log.info("CITA RECIBIDA — ID: {}", event.getIdCita());
+        log.info("Paciente ID: {} | Doctor ID: {}", event.getIdPaciente(), event.getIdDoctor());
+        log.info("=================================");
+
+        notificacionService.procesarCita(event);
+    }
 }

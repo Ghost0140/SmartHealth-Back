@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-	@Autowired
+    @Autowired
     private JwtFilter jwtFilter;
 
     @Bean
@@ -25,16 +25,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                		"/auth/login",
-                        "/auth/register",
-                        "/auth/register-doctor",
-                        "/auth/register-farmacia"
-                ).permitAll()
+                // Solo login y registro de paciente son públicos
+                .requestMatchers("/auth/login", "/auth/register").permitAll()
+                // Registrar doctores y farmacia requiere rol ADMIN
+                .requestMatchers("/auth/register-doctor", "/auth/register-farmacia").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        
+
         return http.build();
     }
 }

@@ -6,13 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecetaEvent {
 
-	private Integer idReceta;
+    private Integer idReceta;
     private Integer idCita;
+    private Integer idPaciente;   
     private Integer idMedicamento;
     private String nombreMedicamento;
     private Integer cantidad;

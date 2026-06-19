@@ -1,4 +1,4 @@
-package com.smarthealth.citas_service.security;
+package com.notificaciones.security;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
