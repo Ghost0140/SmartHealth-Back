@@ -1,7 +1,7 @@
 package com.smarthealth.citas_service.entity;
 
 import java.time.LocalDateTime;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -22,19 +22,24 @@ import lombok.Setter;
 @Table(name = "citas")
 public class CitaEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer idCita;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_cita")
+    private Integer idCita;
 
-	private Integer idPaciente;
+    @Column(name = "id_paciente", nullable = false)
+    private Integer idPaciente;
 
-	private Integer idDoctor;
+    @Column(name = "id_doctor", nullable = false)
+    private Integer idDoctor;
 
-	private LocalDateTime fechaCita;
+    @Column(name = "fecha_cita", nullable = false)
+    private LocalDateTime fechaCita;
 
-	@Enumerated(EnumType.STRING)
-	private EstadoCita estado;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false)
+    private EstadoCita estado = EstadoCita.PROGRAMADA; // Asigna el valor por defecto directamente aquí
 
-	private Boolean activo;
-
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true; // Asigna el valor por defecto directamente aquí
 }
