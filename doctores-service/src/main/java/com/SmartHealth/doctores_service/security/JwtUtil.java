@@ -1,4 +1,4 @@
-package com.smarthealth.citas_service.security;
+package com.SmartHealth.doctores_service.security;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
