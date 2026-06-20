@@ -2,6 +2,7 @@ package com.smarthealth.doctor.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-	
+
 	private final JwtFilter jwtFilter;
 
     @Bean
@@ -26,6 +27,11 @@ public class SecurityConfig {
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
+                    // auth-service necesita consultar el doctor (activo/disponible) durante
+                    // el login, ANTES de que exista un JWT que reenviar. Sin esta excepción,
+                    // ningún usuario con rol DOCTOR puede loguearse (siempre 403).
+                    // El acceso real sigue protegido: solo expone si el doctor existe/está activo.
+                    .requestMatchers(HttpMethod.GET, "/api/doctores/*").permitAll()
                     .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
