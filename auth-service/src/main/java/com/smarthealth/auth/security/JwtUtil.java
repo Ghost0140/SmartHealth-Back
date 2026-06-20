@@ -1,58 +1,50 @@
 package com.smarthealth.auth.security;
 
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+
+import com.smarthealth.auth.entity.UsuarioEntity;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 
-@Service
+@Component
 public class JwtUtil {
+	
+	private static final String SECRET_STRING = "clave_super_secreta_de_256_bits!";
+	private static final long EXPIRATION = 1000L * 60L * 60L * 8L;
+    private SecretKey key;
 
-    // Lee el secreto desde application.properties (jwt.secret=...)
-    // En producción inyectar como variable de entorno: JWT_SECRET=...
-    @Value("${jwt.secret}")
-    private String secretKey;
+	@PostConstruct
+	public void init() {
+		key = Keys.hmacShaKeyFor(SECRET_STRING.getBytes(StandardCharsets.UTF_8));
+	}
 
-    private Key getKey() {
-        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-    }
-
-    public String generateToken(String username, String role) {
+    public String generateToken(UsuarioEntity usuario) {
         return Jwts.builder()
-                .subject(username)
-                .claim("role", role)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-                .signWith(getKey())
+                .setSubject(usuario.getCorreo())
+                .claim("idUsuario", usuario.getIdUsuario())
+                .claim("rol", usuario.getRol().getNombre())
+                .claim("idDoctor", usuario.getIdDoctor())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parser()
-                    .verifyWith((SecretKey) getKey())
-                    .build()
-                    .parseSignedClaims(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    public Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
-    public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith((SecretKey) getKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.getSubject();
-    }
 }
