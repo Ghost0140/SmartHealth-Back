@@ -35,10 +35,11 @@ public class RecetaMapper {
         );
     }
 	
-	public RecetaCreatedEvent toEvent(RecetaEntity entity) {
+	public RecetaCreatedEvent toEvent(RecetaEntity entity, Integer idPaciente) {
 		return new RecetaCreatedEvent(
 				entity.getIdReceta(),
 				entity.getIdCita(),
+				idPaciente,
 				entity.getMedicamento().getIdMedicamento(),
 				entity.getMedicamento().getNombre(),
 				entity.getCantidad(),

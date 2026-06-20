@@ -64,14 +64,13 @@ public class NotificacionService {
     public void procesarReceta(RecetaEvent event) {
         Notificacion notificacion = new Notificacion();
 
-        
-        notificacion.setIdUsuario(event.getIdPaciente());
+        notificacion.setIdUsuario(event.idPaciente());
         notificacion.setTipoEvento("RECETA_GENERADA");
         notificacion.setMensaje(
                 "Receta generada. Medicamento: "
-                        + event.getNombreMedicamento()
+                        + event.nombreMedicamento()
                         + " Cantidad: "
-                        + event.getCantidad()
+                        + event.cantidad()
         );
         notificacion.setLeido(false);
         notificacion.setFechaRegistro(LocalDateTime.now());

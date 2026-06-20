@@ -11,18 +11,17 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class RecetaConsumer {/*
+public class RecetaConsumer {
 
-	 private final NotificacionService notificacionService;
+	private final NotificacionService notificacionService;
 
-	    @RabbitListener(queues = RabbitMQConfig.RECETA_QUEUE)
-	    public void recibirReceta(RecetaEvent event) {
+	@RabbitListener(queues = RabbitMQConfig.RECETA_QUEUE)
+	public void recibirReceta(RecetaEvent event) {
+		log.info("=================================");
+		log.info("RECETA RECIBIDA — ID: {}", event.idReceta());
+		log.info("Paciente ID: {} | Medicamento: {}", event.idPaciente(), event.nombreMedicamento());
+		log.info("=================================");
 
-	        log.info("=================================");
-	        log.info("RECETA RECIBIDA");
-	        log.info("ID RECETA: {}", event.getIdReceta());
-	        log.info("=================================");
-
-	        notificacionService.procesarReceta(event);
-	    }*/
+		notificacionService.procesarReceta(event);
+	}
 }

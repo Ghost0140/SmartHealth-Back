@@ -59,8 +59,9 @@ public class RecetaService {
 	@Transactional
 	@PreAuthorize("hasRole('DOCTOR')")
     public RecetaResponseDto registrarReceta(RecetaCreateDto dto) {
+		CitaFeign cita;
 		try {
-			CitaFeign cita = clienteCita.obtenerCitaPorId(dto.idCita());
+			cita = clienteCita.obtenerCitaPorId(dto.idCita());
 			if ("CANCELADA".equals(cita.nombreEstado()) || "ATENDIDA".equals(cita.nombreEstado())) {
                 throw new RuntimeException("La cita ya fue atendida o cancelada");
             }
@@ -90,7 +91,7 @@ public class RecetaService {
 
         RecetaEntity guardada = recetaRepo.save(entidad);
         
-        RecetaCreatedEvent event = mapper.toEvent(guardada);
+        RecetaCreatedEvent event = mapper.toEvent(guardada, cita.idPaciente());
         
         clienteCita.atenderCita(dto.idCita());
         

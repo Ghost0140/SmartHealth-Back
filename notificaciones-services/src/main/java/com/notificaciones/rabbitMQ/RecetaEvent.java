@@ -1,23 +1,17 @@
 package com.notificaciones.rabbitMQ;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class RecetaEvent {
-
-    private Integer idReceta;
-    private Integer idCita;
-    private Integer idPaciente;   
-    private Integer idMedicamento;
-    private String nombreMedicamento;
-    private Integer cantidad;
-    private LocalDate fechaReceta;
-    private String mensaje;
-}
+/**
+ * Debe coincidir exactamente con RecetaCreatedEvent de farmacia-service
+ * (mismo orden de campos, mismos tipos, mismos nombres).
+ */
+public record RecetaEvent(
+		Long idReceta,
+		Long idCita,
+		Integer idPaciente,
+		Integer idMedicamento,
+		String nombreMedicamento,
+		Integer cantidad,
+		LocalDateTime fechaRegistro
+) {}
