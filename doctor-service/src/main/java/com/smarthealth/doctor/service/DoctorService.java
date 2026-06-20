@@ -41,7 +41,9 @@ public class DoctorService {
                 .toList();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','RECEPCIONISTA')")
+    // Sin @PreAuthorize a propósito: auth-service consulta este método (vía Feign)
+    // durante el login de un usuario DOCTOR, antes de que exista un JWT que enviar.
+    // El SecurityConfig ya deja este endpoint como público (permitAll en GET /api/doctores/*).
     @Transactional(readOnly = true)
     public Optional<DoctorResponseDto> obtenerDoctorPorId(Integer id) {
         return doctorRepo.findByIdWithEspecialidad(id)
