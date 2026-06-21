@@ -39,7 +39,5 @@ public class NotificacionController {
             @PathVariable Integer id) {
 
         return service.marcarLeida(id);
-    }
-
-    
+    }   
 }
