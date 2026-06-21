@@ -1,13 +1,22 @@
+-- ================================================================
+-- RESET COMPLETO DE BASE DE DATOS — db_doctor
+-- ================================================================
+DROP DATABASE IF EXISTS db_doctor;
 CREATE DATABASE db_doctor;
-
 USE db_doctor;
 
+-- ================================================================
+-- TABLA ESPECIALIDADES
+-- ================================================================
 CREATE TABLE especialidades (
     id_especialidad INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL UNIQUE,
     activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
+-- ================================================================
+-- TABLA DOCTORES
+-- ================================================================
 CREATE TABLE doctores (
     id_doctor INT AUTO_INCREMENT PRIMARY KEY,
     id_especialidad INT NOT NULL,
@@ -29,6 +38,9 @@ CREATE TABLE doctores (
         CHECK (email LIKE '%_@_%._%')
 );
 
+-- ================================================================
+-- SEED ESPECIALIDADES
+-- ================================================================
 INSERT INTO especialidades (nombre) VALUES
 ('CARDIOLOGIA'),
 ('NEUROLOGIA'),
@@ -36,6 +48,12 @@ INSERT INTO especialidades (nombre) VALUES
 ('TRAUMATOLOGIA'),
 ('DERMATOLOGIA');
 
+-- ================================================================
+-- SEED DOCTORES
+-- IMPORTANTE: id_doctor 1 y 2 deben coincidir exactamente con los
+-- usuarios de db_auth (correos carlos.ramirez1@mail.com e
+-- lucia.mendoza2@mail.com) para que el login funcione.
+-- ================================================================
 INSERT INTO doctores (id_especialidad, nombres, apellidos, dni, telefono, email) VALUES
 (1, 'Carlos', 'Ramirez Soto', '74125896', '987654321', 'carlos.ramirez1@mail.com'),
 (2, 'Lucia', 'Mendoza Perez', '85236974', '987654322', 'lucia.mendoza2@mail.com'),
