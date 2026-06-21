@@ -1,7 +1,13 @@
+-- ================================================================
+-- RESET COMPLETO DE BASE DE DATOS — db_paciente
+-- ================================================================
+DROP DATABASE IF EXISTS db_paciente;
 CREATE DATABASE db_paciente;
-
 USE db_paciente;
 
+-- ================================================================
+-- TABLA PACIENTES
+-- ================================================================
 CREATE TABLE pacientes (
     id_paciente INT AUTO_INCREMENT PRIMARY KEY,
     nombres VARCHAR(100) NOT NULL,
@@ -14,12 +20,17 @@ CREATE TABLE pacientes (
         CHECK (dni REGEXP '^[0-9]{8}$'),
     CONSTRAINT chk_pacientes_telefono
         CHECK (telefono REGEXP '^[0-9]{9}$'),
-	CONSTRAINT chk_pacientes_email
-		CHECK (email LIKE '%_@_%._%')
+    CONSTRAINT chk_pacientes_email
+        CHECK (email LIKE '%_@_%._%')
 );
 
+-- ================================================================
+-- SEED PACIENTES
+-- Nota: se evitó "Carlos Ramírez" como primer nombre para no
+-- confundirlo con el doctor del mismo nombre en demos.
+-- ================================================================
 INSERT INTO pacientes (nombres, apellidos, dni, telefono, email) VALUES
-('Carlos', 'Ramírez Soto', '12345678', '987654321', 'carlos.ramirez@gmail.com'),
+('Roberto', 'Salinas Torres', '12345678', '987654321', 'roberto.salinas@gmail.com'),
 ('María', 'Gómez Torres', '23456789', '987654322', 'maria.gomez@hotmail.com'),
 ('Luis', 'Paredes Ruiz', '34567890', '987654323', 'luis.paredes@yahoo.com'),
 ('Ana', 'Vargas Medina', '45678901', '987654324', 'ana.vargas@gmail.com'),
