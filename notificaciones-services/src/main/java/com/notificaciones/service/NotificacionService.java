@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.notificaciones.model.Notificacion;
@@ -20,16 +21,19 @@ public class NotificacionService {
 
     private final NotificacionRepository repository;
 
+    @PreAuthorize("isAuthenticated()")
     public List<Notificacion> listar() {
         return repository.findAll();
     }
 
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Notificacion> buscar(Integer id) {
         return repository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Notificacion> marcarLeida(Integer id) {
         return repository.findById(id)
                 .map(notificacion -> {
