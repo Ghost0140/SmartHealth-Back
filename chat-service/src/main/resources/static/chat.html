@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat Interno SmartHealth</title>
+
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+
+    body {
+      margin: 0;
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .header {
+      background: #0f766e;
+      color: white;
+      padding: 20px;
+    }
+
+    .header h2 { margin: 0; }
+    .header p { margin: 6px 0 0; font-size: 14px; opacity: 0.9; }
+
+    .body {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 520px;
+    }
+
+    .sidebar {
+      border-right: 1px solid #e2e8f0;
+      padding: 20px;
+      background: #f8fafc;
+    }
+
+    .chat {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      margin-top: 12px;
+      margin-bottom: 6px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    textarea {
+      resize: none;
+      height: 70px;
+    }
+
+    button {
+      border: none;
+      background: #0f766e;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover { background: #115e59; }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+      margin-top: 8px;
+      width: 100%;
+    }
+
+    .btn-secondary:hover { background: #cbd5e1; }
+
+    .btn-active {
+      background: #ccfbf1;
+      color: #0f766e;
+      border: 1px solid #5eead4;
+    }
+
+    .status {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 13px;
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .status.connected {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .quick-users { margin-top: 20px; }
+
+    .quick-users button {
+      display: block;
+      width: 100%;
+      margin-bottom: 8px;
+      background: white;
+      color: #0f766e;
+      border: 1px solid #99f6e4;
+      text-align: left;
+    }
+
+    .messages {
+      flex: 1;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
+      overflow-y: auto;
+      background: #f8fafc;
+      margin-bottom: 16px;
+      min-height: 320px;
+    }
+
+    .message {
+      max-width: 70%;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .message.me {
+      margin-left: auto;
+      background: #0f766e;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.other {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-bottom-left-radius: 4px;
+    }
+
+    .message.system {
+      margin: 8px auto;
+      background: #e0f2fe;
+      color: #075985;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .meta {
+      font-size: 11px;
+      opacity: 0.75;
+      margin-top: 4px;
+    }
+
+    .send-box {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .chat-title {
+      margin-bottom: 12px;
+      font-weight: bold;
+      color: #0f766e;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Chat Interno SmartHealth</h2>
+      <p>Comunicación en tiempo real entre administrador, doctores y recepcionistas</p>
+    </div>
+
+    <div class="body">
+      <div class="sidebar">
+        <label>Rol</label>
+        <select id="rol">
+          <option value="ADMIN">Administrador</option>
+          <option value="DOCTOR">Doctor</option>
+          <option value="RECEPCIONISTA">Recepcionista</option>
+        </select>
+
+        <label>Tu usuario</label>
+        <input id="emisor" placeholder="Ej: doctor" />
+
+        <button style="width:100%; margin-top:12px;" onclick="conectar()">Conectar</button>
+
+        <button class="btn-secondary" onclick="desconectar()">Desconectar</button>
+
+        <div id="estado" class="status">No conectado</div>
+
+        <div class="quick-users">
+          <label>Usuarios rápidos</label>
+          <button onclick="usarUsuario('admin', 'ADMIN')">Administrador</button>
+          <button onclick="usarUsuario('doctor', 'DOCTOR')">Doctor</button>
+          <button onclick="usarUsuario('recepcionista', 'RECEPCIONISTA')">Recepcionista</button>
+        </div>
+
+        <label>Conversaciones</label>
+        <button id="btn-admin" class="btn-secondary" onclick="setReceptor('admin')">💬 Chat con admin</button>
+        <button id="btn-doctor" class="btn-secondary" onclick="setReceptor('doctor')">💬 Chat con doctor</button>
+        <button id="btn-recepcionista" class="btn-secondary" onclick="setReceptor('recepcionista')">💬 Chat con recepcionista</button>
+
+        <label>Enviar a</label>
+        <input id="receptor" placeholder="Ej: recepcionista" readonly />
+      </div>
+
+      <div class="chat">
+        <div class="chat-title" id="tituloChat">Selecciona una conversación</div>
+
+        <div id="mensajes" class="messages"></div>
+
+        <div class="send-box">
+          <textarea id="contenido" placeholder="Escribe un mensaje interno..."></textarea>
+          <button onclick="enviarMensaje()">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+  <script>
+    let stompClient = null;
+    let usuario = "";
+    let rol = "";
+    let receptorActual = "";
+
+    const conversaciones = {
+      admin: [],
+      doctor: [],
+      recepcionista: []
+    };
+
+    function usarUsuario(nombre, rolSeleccionado) {
+      document.getElementById("emisor").value = nombre;
+      document.getElementById("rol").value = rolSeleccionado;
+    }
+
+    function setReceptor(nombre) {
+      receptorActual = nombre;
+      document.getElementById("receptor").value = nombre;
+      document.getElementById("tituloChat").textContent = "Conversación con " + nombre;
+
+      document.querySelectorAll(".btn-secondary").forEach(btn => {
+        btn.classList.remove("btn-active");
+      });
+
+      const boton = document.getElementById("btn-" + nombre);
+      if (boton) boton.classList.add("btn-active");
+
+      renderConversacion();
+    }
+
+    function conectar() {
+      usuario = document.getElementById("emisor").value.trim();
+      rol = document.getElementById("rol").value;
+
+      if (!usuario) {
+        alert("Ingresa tu usuario");
+        return;
+      }
+
+      const socket = new SockJS(`${window.location.origin}/chat`);
+      stompClient = Stomp.over(socket);
+
+      stompClient.connect({}, function () {
+        const estado = document.getElementById("estado");
+        estado.textContent = "Conectado como " + usuario + " (" + rol + ")";
+        estado.classList.add("connected");
+
+        agregarMensajeSistema("Conectado al chat interno");
+
+        stompClient.subscribe("/topic/" + usuario, function (message) {
+          const msg = JSON.parse(message.body);
+
+          if (!conversaciones[msg.emisor]) {
+            conversaciones[msg.emisor] = [];
+          }
+
+          conversaciones[msg.emisor].push({
+            origen: msg.emisor,
+            texto: msg.contenido,
+            tipo: "other",
+            hora: obtenerHora()
+          });
+
+		  if (!receptorActual || receptorActual === msg.emisor) {
+		    setReceptor(msg.emisor);
+		  } else {
+		    renderConversacion();
+		  }
+        });
+      });
+    }
+
+    function desconectar() {
+      if (stompClient) {
+        stompClient.disconnect();
+        stompClient = null;
+      }
+
+      const estado = document.getElementById("estado");
+      estado.textContent = "No conectado";
+      estado.classList.remove("connected");
+
+      agregarMensajeSistema("Sesión finalizada");
+    }
+
+    function enviarMensaje() {
+      const receptor = document.getElementById("receptor").value.trim();
+      const contenido = document.getElementById("contenido").value.trim();
+
+      if (!stompClient || !usuario) {
+        alert("Primero debes conectarte");
+        return;
+      }
+
+      if (!receptor || !contenido) {
+        alert("Selecciona una conversación y escribe un mensaje");
+        return;
+      }
+
+      stompClient.send("/app/mensaje", {}, JSON.stringify({
+        emisor: usuario,
+        receptor: receptor,
+        contenido: contenido
+      }));
+
+      if (!conversaciones[receptor]) {
+        conversaciones[receptor] = [];
+      }
+
+      conversaciones[receptor].push({
+        origen: "Yo para " + receptor,
+        texto: contenido,
+        tipo: "me",
+        hora: obtenerHora()
+      });
+
+      document.getElementById("contenido").value = "";
+      renderConversacion();
+    }
+
+    function renderConversacion() {
+      const contenedor = document.getElementById("mensajes");
+      contenedor.innerHTML = "";
+
+      if (!receptorActual) {
+        agregarMensajeSistema("Selecciona una conversación para comenzar");
+        return;
+      }
+
+      const mensajes = conversaciones[receptorActual] || [];
+
+      if (mensajes.length === 0) {
+        agregarMensajeSistema("No hay mensajes con " + receptorActual);
+        return;
+      }
+
+      mensajes.forEach(m => {
+        pintarMensaje(m.origen, m.texto, m.tipo, m.hora);
+      });
+
+      contenedor.scrollTop = contenedor.scrollHeight;
+    }
+
+    function agregarMensajeSistema(texto) {
+      const contenedor = document.getElementById("mensajes");
+
+      const div = document.createElement("div");
+      div.className = "message system";
+      div.innerHTML = `
+        <div><strong>Sistema</strong></div>
+        <div>${texto}</div>
+        <div class="meta">${obtenerHora()}</div>
+      `;
+
+      contenedor.appendChild(div);
+      contenedor.scrollTop = contenedor.scrollHeight;
+    }
+
+    function pintarMensaje(origen, texto, tipo, hora) {
+      const contenedor = document.getElementById("mensajes");
+
+      const div = document.createElement("div");
+      div.className = "message " + tipo;
+
+      div.innerHTML = `
+        <div><strong>${origen}</strong></div>
+        <div>${texto}</div>
+        <div class="meta">${hora}</div>
+      `;
+
+      contenedor.appendChild(div);
+    }
+
+    function obtenerHora() {
+      return new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+  </script>
+</body>
+</html>

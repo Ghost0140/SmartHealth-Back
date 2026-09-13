@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bindings version="3.0" xmlns="https://jakarta.ee/xml/ns/jaxb">
+  <!--
+
+Este archivo ha sido generado por Eclipse Implementation of JAXB v3.0.0 
+Visite https://eclipse-ee4j.github.io/jaxb-ri 
+Todas las modificaciones realizadas en este archivo se perderán si se vuelve a compilar el esquema de origen. 
+Generado el: 2026.06.20 a las 09:16:14 AM PET 
+
+  -->
+  <bindings scd="x-schema::tns" xmlns:tns="http://www.historial.com/historial">
+    <schemaBindings map="false">
+      <package name="com.historial.historial"/>
+    </schemaBindings>
+    <bindings scd="tns:crearHistorialRequest">
+      <class ref="com.historial.historial.CrearHistorialRequest"/>
+    </bindings>
+    <bindings scd="tns:crearHistorialResponse">
+      <class ref="com.historial.historial.CrearHistorialResponse"/>
+    </bindings>
+    <bindings scd="tns:obtenerHistorialRequest">
+      <class ref="com.historial.historial.ObtenerHistorialRequest"/>
+    </bindings>
+    <bindings scd="tns:obtenerHistorialResponse">
+      <class ref="com.historial.historial.ObtenerHistorialResponse"/>
+    </bindings>
+    <bindings scd="tns:listarHistorialesRequest">
+      <class ref="com.historial.historial.ListarHistorialesRequest"/>
+    </bindings>
+    <bindings scd="tns:listarHistorialesResponse">
+      <class ref="com.historial.historial.ListarHistorialesResponse"/>
+    </bindings>
+    <bindings scd="~tns:historialType">
+      <class ref="com.historial.historial.HistorialType"/>
+    </bindings>
+    <bindings scd="tns:actualizarHistorialRequest">
+      <class ref="com.historial.historial.ActualizarHistorialRequest"/>
+    </bindings>
+    <bindings scd="tns:actualizarHistorialResponse">
+      <class ref="com.historial.historial.ActualizarHistorialResponse"/>
+    </bindings>
+    <bindings scd="tns:eliminarHistorialRequest">
+      <class ref="com.historial.historial.EliminarHistorialRequest"/>
+    </bindings>
+    <bindings scd="tns:eliminarHistorialResponse">
+      <class ref="com.historial.historial.EliminarHistorialResponse"/>
+    </bindings>
+  </bindings>
+</bindings>
+

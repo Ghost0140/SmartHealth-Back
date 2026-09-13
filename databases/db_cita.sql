@@ -64,3 +64,9 @@ INSERT INTO citas (id_paciente, id_doctor, fecha, id_estado) VALUES
 UPDATE citas SET id_estado = 3
 WHERE id_paciente IN (17, 18, 19)
   AND fecha < '2026-06-19 00:00:00';
+  
+
+INSERT INTO citas (id_paciente, id_doctor, fecha, id_estado) VALUES
+(1, 1, '2026-06-24 09:00:00', 1),
+(2, 1, '2026-06-24 09:30:00', 1),
+(1, 2, '2026-06-24 10:00:00', 1);
