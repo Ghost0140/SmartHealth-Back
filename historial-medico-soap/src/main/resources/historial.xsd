@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.historial.com/historial"
+           xmlns:tns="http://www.historial.com/historial"
+           elementFormDefault="qualified">
+
+    <!-- TIPO HISTORIAL -->
+    <xs:complexType name="historialType">
+        <xs:sequence>
+            <xs:element name="id" type="xs:int"/>
+            <xs:element name="pacienteId" type="xs:int"/>
+            <xs:element name="doctorId" type="xs:int"/>
+            <xs:element name="diagnostico" type="xs:string"/>
+            <xs:element name="tratamiento" type="xs:string"/>
+            <xs:element name="observacion" type="xs:string"/>
+            <xs:element name="fechaAtencion" type="xs:date"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- CREAR HISTORIAL -->
+    <xs:element name="crearHistorialRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="pacienteId" type="xs:int"/>
+                <xs:element name="doctorId" type="xs:int"/>
+                <xs:element name="diagnostico" type="xs:string"/>
+                <xs:element name="tratamiento" type="xs:string"/>
+                <xs:element name="observacion" type="xs:string"/>
+                <xs:element name="fechaAtencion" type="xs:date"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="crearHistorialResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="mensaje" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- OBTENER POR ID -->
+    <xs:element name="obtenerHistorialRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="obtenerHistorialResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="historial" type="tns:historialType" minOccurs="0"/>
+                <xs:element name="mensaje" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- LISTAR TODOS -->
+    <xs:element name="listarHistorialesRequest">
+        <xs:complexType/>
+    </xs:element>
+
+    <xs:element name="listarHistorialesResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="historial"
+                            type="tns:historialType"
+                            minOccurs="0"
+                            maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- LISTAR POR PACIENTE -->
+    <xs:element name="listarHistorialesPorPacienteRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="pacienteId" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="listarHistorialesPorPacienteResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="historial"
+                            type="tns:historialType"
+                            minOccurs="0"
+                            maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

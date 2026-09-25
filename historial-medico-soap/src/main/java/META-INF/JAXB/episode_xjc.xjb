@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bindings version="3.0" xmlns="https://jakarta.ee/xml/ns/jaxb">
+  <!--
+
+Este archivo ha sido generado por Eclipse Implementation of JAXB v3.0.0 
+Visite https://eclipse-ee4j.github.io/jaxb-ri 
+Todas las modificaciones realizadas en este archivo se perderán si se vuelve a compilar el esquema de origen. 
+Generado el: 2026.06.19 a las 11:41:41 PM PET 
+
+  -->
+  <bindings scd="x-schema::tns" xmlns:tns="http://www.historial.com/soap">
+    <schemaBindings map="false">
+      <package name="com.historial.soap"/>
+    </schemaBindings>
+    <bindings scd="tns:crearHistorialRequest">
+      <class ref="com.historial.soap.CrearHistorialRequest"/>
+    </bindings>
+    <bindings scd="tns:crearHistorialResponse">
+      <class ref="com.historial.soap.CrearHistorialResponse"/>
+    </bindings>
+    <bindings scd="tns:obtenerHistorialRequest">
+      <class ref="com.historial.soap.ObtenerHistorialRequest"/>
+    </bindings>
+    <bindings scd="tns:obtenerHistorialResponse">
+      <class ref="com.historial.soap.ObtenerHistorialResponse"/>
+    </bindings>
+    <bindings scd="tns:listarHistorialesRequest">
+      <class ref="com.historial.soap.ListarHistorialesRequest"/>
+    </bindings>
+    <bindings scd="tns:listarHistorialesResponse">
+      <class ref="com.historial.soap.ListarHistorialesResponse"/>
+    </bindings>
+    <bindings scd="~tns:historialType">
+      <class ref="com.historial.soap.HistorialType"/>
+    </bindings>
+    <bindings scd="tns:actualizarHistorialRequest">
+      <class ref="com.historial.soap.ActualizarHistorialRequest"/>
+    </bindings>
+    <bindings scd="tns:actualizarHistorialResponse">
+      <class ref="com.historial.soap.ActualizarHistorialResponse"/>
+    </bindings>
+    <bindings scd="tns:eliminarHistorialRequest">
+      <class ref="com.historial.soap.EliminarHistorialRequest"/>
+    </bindings>
+    <bindings scd="tns:eliminarHistorialResponse">
+      <class ref="com.historial.soap.EliminarHistorialResponse"/>
+    </bindings>
+  </bindings>
+</bindings>
+
