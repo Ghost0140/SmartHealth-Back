@@ -14,13 +14,12 @@ import com.smarthealth.appointment.dto.CitaResponseDto;
 import com.smarthealth.appointment.dto.UsuarioAutenticadoDto;
 import com.smarthealth.appointment.entity.CitaEntity;
 import com.smarthealth.appointment.entity.EstadoEntity;
-import com.smarthealth.appointment.event.CitaCreatedEvent;
 import com.smarthealth.appointment.feign.ClienteDoctorFeign;
 import com.smarthealth.appointment.feign.ClientePacienteFeign;
 import com.smarthealth.appointment.feign.DoctorFeign;
 import com.smarthealth.appointment.feign.PacienteFeign;
 import com.smarthealth.appointment.mapper.CitaMapper;
-import com.smarthealth.appointment.rabbit.CitaProducer;
+import com.smarthealth.appointment.chat.ChatMessageClient;
 import com.smarthealth.appointment.repository.CitaRepository;
 import com.smarthealth.appointment.repository.EstadoRepository;
 
@@ -41,7 +40,10 @@ public class CitaService {
 
 	private final ClienteDoctorFeign clienteDoctor;
 
-	private final CitaProducer producer;
+	private final ChatMessageClient chatClient;
+
+	@org.springframework.beans.factory.annotation.Value("${smarthealth.chat.internal-token:}")
+	private String chatInternalToken;
 	
 	@Transactional(readOnly = true)
 	@PreAuthorize("hasAnyRole('ADMIN','DOCTOR','RECEPCIONISTA')")
@@ -155,9 +157,16 @@ public class CitaService {
 
         CitaEntity guardada = citaRepo.save(entidad);
         
-        CitaCreatedEvent event = mapper.toEvent(guardada);
-        
-        producer.publicarCita(event);
+        try {
+			chatClient.publicarMensajeSistema(chatInternalToken,
+					new com.smarthealth.appointment.chat.ChatSystemMessage("doctor",
+							"Nueva cita #" + guardada.getIdCita() + " programada para " + guardada.getFecha()
+								+ " (paciente #" + guardada.getIdPaciente() + ")."));
+		} catch (Exception ex) {
+			// La indisponibilidad del chat no debe impedir que se registre una cita.
+			org.slf4j.LoggerFactory.getLogger(CitaService.class)
+					.warn("No se pudo publicar el mensaje de la cita {} en el chat", guardada.getIdCita(), ex);
+		}
 
         return mapper.toResponseDto(guardada);
     }

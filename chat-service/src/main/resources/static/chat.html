@@ -221,6 +221,7 @@
         <button id="btn-admin" class="btn-secondary" onclick="setReceptor('admin')">💬 Chat con admin</button>
         <button id="btn-doctor" class="btn-secondary" onclick="setReceptor('doctor')">💬 Chat con doctor</button>
         <button id="btn-recepcionista" class="btn-secondary" onclick="setReceptor('recepcionista')">💬 Chat con recepcionista</button>
+        <button id="btn-Sistema" class="btn-secondary" onclick="setReceptor('Sistema')">🔔 Avisos del sistema</button>
 
         <label>Enviar a</label>
         <input id="receptor" placeholder="Ej: recepcionista" readonly />
@@ -251,7 +252,8 @@
     const conversaciones = {
       admin: [],
       doctor: [],
-      recepcionista: []
+      recepcionista: [],
+      Sistema: []
     };
 
     function usarUsuario(nombre, rolSeleccionado) {
@@ -303,7 +305,7 @@
           conversaciones[msg.emisor].push({
             origen: msg.emisor,
             texto: msg.contenido,
-            tipo: "other",
+            tipo: msg.emisor === "Sistema" ? "system" : "other",
             hora: obtenerHora()
           });
 
@@ -313,6 +315,26 @@
 		    renderConversacion();
 		  }
         });
+
+        fetch(`/chat/mensajes?usuario=${encodeURIComponent(usuario)}`)
+          .then(response => response.ok ? response.json() : [])
+          .then(mensajes => {
+            mensajes.forEach(msg => {
+              if (!conversaciones[msg.emisor]) conversaciones[msg.emisor] = [];
+              conversaciones[msg.emisor].push({
+                origen: msg.emisor,
+                texto: msg.contenido,
+                tipo: msg.emisor === "Sistema" ? "system" : "other",
+                hora: new Date(msg.fecha).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+              });
+            });
+            if (conversaciones.Sistema.length > 0) setReceptor("Sistema");
+          });
+      }, function (error) {
+        const estado = document.getElementById("estado");
+        estado.textContent = "No se pudo conectar con el chat. Verifica que chat-service esté activo en el puerto 8088.";
+        estado.classList.remove("connected");
+        console.error("Error de conexión STOMP/WebSocket:", error);
       });
     }
 
