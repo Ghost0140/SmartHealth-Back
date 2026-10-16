@@ -11,10 +11,10 @@
 -- db_farmacia: recetas asociadas a las citas 10 al 15
 --
 -- DISTRIBUCION DE IDS:
--- 1-9   = PROGRAMADAS
+-- 1-9   = PROGRAMADAS (fechas futuras relativas al momento de ejecución)
 -- 10-15 = ATENDIDAS
 -- 16-18 = CANCELADAS
--- 19-21 = PROGRAMADAS
+-- 19-21 = PROGRAMADAS (fechas futuras relativas al momento de ejecución)
 --
 -- ESTADOS:
 -- 1 = PROGRAMADA
@@ -54,6 +54,9 @@ CREATE TABLE citas (
     id_doctor INT NOT NULL,
     fecha DATETIME NOT NULL,
     id_estado INT NOT NULL,
+    fecha_reservable DATETIME GENERATED ALWAYS AS (
+        CASE WHEN id_estado <> 3 THEN fecha ELSE NULL END
+    ) STORED,
 
     PRIMARY KEY (id_cita),
 
@@ -61,8 +64,8 @@ CREATE TABLE citas (
         FOREIGN KEY (id_estado)
         REFERENCES estados_cita(id_estado),
 
-    CONSTRAINT uk_citas_doctor_fecha
-        UNIQUE (id_doctor, fecha),
+    CONSTRAINT uk_citas_doctor_fecha_activa
+        UNIQUE (id_doctor, fecha_reservable),
 
     INDEX idx_citas_paciente (id_paciente),
     INDEX idx_citas_doctor (id_doctor),
@@ -89,15 +92,15 @@ INSERT INTO estados_cita (id_estado, nombre) VALUES
 INSERT INTO citas
 (id_cita, id_paciente, id_doctor, fecha, id_estado)
 VALUES
-(1,  2,  1, '2026-09-24 09:00:00', 1),
-(2,  3,  1, '2026-09-24 09:30:00', 1),
-(3,  4,  2, '2026-09-24 10:00:00', 1),
-(4,  5,  1, '2026-09-24 11:00:00', 1),
-(5,  6,  2, '2026-09-25 08:30:00', 1),
-(6,  7,  1, '2026-09-25 15:00:00', 1),
-(7,  8,  2, '2026-09-26 14:00:00', 1),
-(8,  9,  1, '2026-09-28 16:30:00', 1),
-(9, 10,  2, '2026-09-29 09:00:00', 1);
+ (1,  2,  1, TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL 1 DAY), '09:00:00'), 1),
+(2,  3,  1, TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL 1 DAY), '09:30:00'), 1),
+(3,  4,  2, TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL 1 DAY), '10:00:00'), 1),
+(4,  5,  1, TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL 1 DAY), '11:00:00'), 1),
+(5,  6,  2, TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL 2 DAY), '08:30:00'), 1),
+(6,  7,  1, TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL 2 DAY), '15:00:00'), 1),
+(7,  8,  2, TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL 3 DAY), '14:00:00'), 1),
+(8,  9,  1, TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL 4 DAY), '16:30:00'), 1),
+(9, 10,  2, TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL 4 DAY), '09:00:00'), 1);
 
 
 -- ================================================================
@@ -117,12 +120,12 @@ VALUES
 INSERT INTO citas
 (id_cita, id_paciente, id_doctor, fecha, id_estado)
 VALUES
-(10, 11, 1, '2026-09-10 09:00:00', 2),
-(11, 12, 1, '2026-09-12 10:30:00', 2),
-(12, 13, 2, '2026-09-13 08:00:00', 2),
-(13, 14, 2, '2026-09-15 11:30:00', 2),
-(14, 15, 1, '2026-09-17 14:30:00', 2),
-(15, 16, 2, '2026-09-18 16:00:00', 2);
+(10, 11, 1, TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY), '09:00:00'), 2),
+(11, 12, 1, TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 28 DAY), '10:30:00'), 2),
+(12, 13, 2, TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 27 DAY), '08:00:00'), 2),
+(13, 14, 2, TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 25 DAY), '11:30:00'), 2),
+(14, 15, 1, TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 23 DAY), '14:30:00'), 2),
+(15, 16, 2, TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 22 DAY), '16:00:00'), 2);
 
 
 -- ================================================================
@@ -133,9 +136,9 @@ VALUES
 INSERT INTO citas
 (id_cita, id_paciente, id_doctor, fecha, id_estado)
 VALUES
-(16, 17, 1, '2026-09-11 13:00:00', 3),
-(17, 18, 2, '2026-09-14 09:30:00', 3),
-(18, 19, 1, '2026-09-16 15:30:00', 3);
+(16, 17, 1, TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 29 DAY), '13:00:00'), 3),
+(17, 18, 2, TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 26 DAY), '09:30:00'), 3),
+(18, 19, 1, TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 24 DAY), '15:30:00'), 3);
 
 
 -- ================================================================
@@ -146,9 +149,9 @@ VALUES
 INSERT INTO citas
 (id_cita, id_paciente, id_doctor, fecha, id_estado)
 VALUES
-(19, 1, 1, '2026-09-26 09:00:00', 1),
-(20, 2, 1, '2026-09-26 09:30:00', 1),
-(21, 1, 2, '2026-09-26 10:00:00', 1);
+(19, 1, 1, TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL 5 DAY), '09:00:00'), 1),
+(20, 2, 1, TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL 5 DAY), '09:30:00'), 1),
+(21, 1, 2, TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL 5 DAY), '10:00:00'), 1);
 
 
 -- ================================================================
