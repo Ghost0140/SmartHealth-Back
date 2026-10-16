@@ -38,6 +38,7 @@ USE db_cita;
 CREATE TABLE estados_cita (
     id_estado INT NOT NULL AUTO_INCREMENT,
     nombre VARCHAR(30) NOT NULL,
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
     PRIMARY KEY (id_estado),
     UNIQUE KEY uk_estados_cita_nombre (nombre)
 ) ENGINE=InnoDB;

@@ -12,4 +12,6 @@ public interface MensajeChatRepository extends JpaRepository<MensajeChat, Long>{
             String receptor);
 
     List<MensajeChat> findByReceptor(String receptor);
+
+	List<MensajeChat> findByReceptorOrderByFechaAsc(String receptor);
 }

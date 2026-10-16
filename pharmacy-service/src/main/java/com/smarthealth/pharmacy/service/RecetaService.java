@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,11 +12,11 @@ import com.smarthealth.pharmacy.dto.RecetaCreateDto;
 import com.smarthealth.pharmacy.dto.RecetaResponseDto;
 import com.smarthealth.pharmacy.entity.MedicamentoEntity;
 import com.smarthealth.pharmacy.entity.RecetaEntity;
-import com.smarthealth.pharmacy.event.RecetaCreatedEvent;
+import com.smarthealth.pharmacy.chat.ChatMessageClient;
+import com.smarthealth.pharmacy.chat.ChatSystemMessage;
 import com.smarthealth.pharmacy.feign.CitaFeign;
 import com.smarthealth.pharmacy.feign.ClienteCitaFeign;
 import com.smarthealth.pharmacy.mapper.RecetaMapper;
-import com.smarthealth.pharmacy.rabbit.RecetaProducer;
 import com.smarthealth.pharmacy.repository.MedicamentoRepository;
 import com.smarthealth.pharmacy.repository.RecetaRepository;
 
@@ -31,10 +32,11 @@ public class RecetaService {
 	private final MedicamentoRepository medicamentoRepo;
 	
 	private final RecetaMapper mapper;
+	private final ChatMessageClient chatClient;
+	@Value("${smarthealth.chat.internal-token:}")
+	private String chatInternalToken;
 	
 	private final ClienteCitaFeign clienteCita;
-	
-	private final RecetaProducer producer;
 	
 	@Transactional(readOnly = true)
 	@PreAuthorize("hasAnyRole('ADMIN','DOCTOR','RECEPCIONISTA')")
@@ -91,11 +93,17 @@ public class RecetaService {
 
         RecetaEntity guardada = recetaRepo.save(entidad);
         
-        RecetaCreatedEvent event = mapper.toEvent(guardada, cita.idPaciente());
-        
         clienteCita.atenderCita(dto.idCita());
         
-        producer.publicarReceta(event);
+		try {
+			chatClient.publicarMensajeSistema(chatInternalToken,
+					new ChatSystemMessage("recepcionista", "Receta #" + guardada.getIdReceta()
+							+ " registrada para la cita #" + guardada.getIdCita() + "."));
+		} catch (Exception ex) {
+			// La indisponibilidad del chat no debe revertir una receta ya procesada.
+			org.slf4j.LoggerFactory.getLogger(RecetaService.class)
+					.warn("No se pudo publicar el mensaje de la receta {} en el chat", guardada.getIdReceta(), ex);
+		}
 
         return mapper.toResponseDto(guardada);
     }
