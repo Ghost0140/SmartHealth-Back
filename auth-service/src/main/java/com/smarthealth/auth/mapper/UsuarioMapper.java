@@ -29,7 +29,7 @@ public class UsuarioMapper {
         		usuario.getCorreo(),
         		usuario.getRol().getIdRol(),
         		usuario.getRol().getNombre(),
-        		usuario.getIdDoctor(),
+				usuario.getIdDoctor(),
         		usuario.getActivo()
         );
     }

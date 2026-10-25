@@ -21,6 +21,17 @@ public class ChatService {
     private SimpMessagingTemplate messagingTemplate;
 
     public MensajeChat guardarMensaje(ChatMessageDTO dto) {
+		if (dto.getEmisor() == null || dto.getEmisor().isBlank()
+				|| dto.getReceptor() == null || dto.getContenido() == null
+				|| dto.getContenido().isBlank() || dto.getContenido().length() > 1000) {
+			throw new IllegalArgumentException("El mensaje requiere emisor, destinatario y contenido de hasta 1000 caracteres");
+		}
+		if (!dto.getReceptor().matches("admin|doctor:[1-9][0-9]*|recepcionista:[^\\s/]+@[^\\s/]+")) {
+			throw new IllegalArgumentException("El destinatario del chat no es válido");
+		}
+		if (dto.getEmisor().equals(dto.getReceptor())) {
+			throw new IllegalArgumentException("No puedes enviarte mensajes a ti mismo");
+		}
 
     	MensajeChat mensaje = new MensajeChat();
 
@@ -48,7 +59,7 @@ public class ChatService {
         return repository.findAll();
     }
 
-    public List<MensajeChat> listarMensajesRecibidos(String usuario) {
-        return repository.findByReceptorOrderByFechaAsc(usuario);
+    public List<MensajeChat> listarMensajesUsuario(String usuario, String rol) {
+        return repository.findConversacionUsuario(usuario, rol);
     }
 }

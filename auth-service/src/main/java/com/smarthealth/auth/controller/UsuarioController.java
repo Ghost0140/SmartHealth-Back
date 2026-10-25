@@ -20,6 +20,7 @@ import com.smarthealth.auth.dto.LoginRequestDto;
 import com.smarthealth.auth.dto.LoginResponseDto;
 import com.smarthealth.auth.dto.ResetClaveDto;
 import com.smarthealth.auth.dto.UsuarioCreateDto;
+	import com.smarthealth.auth.dto.UsuarioDoctorCreateDto;
 import com.smarthealth.auth.dto.UsuarioResponseDto;
 import com.smarthealth.auth.dto.UsuarioUpdateDto;
 import com.smarthealth.auth.service.UsuarioService;
@@ -69,6 +70,34 @@ public class UsuarioController {
     	UsuarioResponseDto creado = service.registrarUsuario(dto);
     	return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
+
+	@PostMapping("/doctores")
+	public ResponseEntity<UsuarioResponseDto> registrarUsuarioDoctor(@Valid @RequestBody UsuarioDoctorCreateDto dto) {
+		UsuarioResponseDto creado = service.registrarUsuarioDoctor(dto);
+		return ResponseEntity.status(HttpStatus.CREATED).body(creado);
+	}
+
+	@PutMapping("/doctores/{idDoctor}/correo")
+	public ResponseEntity<Void> actualizarCorreoDoctor(
+			@PathVariable Integer idDoctor,
+			@RequestParam String correo) {
+		if (idDoctor <= 0) {
+			return ResponseEntity.badRequest().build();
+		}
+		service.actualizarCorreoDoctor(idDoctor, correo);
+		return ResponseEntity.noContent().build();
+	}
+
+	@PatchMapping("/doctores/{idDoctor}/estado")
+	public ResponseEntity<Void> actualizarEstadoDoctor(
+			@PathVariable Integer idDoctor,
+			@RequestParam boolean activo) {
+		if (idDoctor <= 0) {
+			return ResponseEntity.badRequest().build();
+		}
+		service.actualizarEstadoDoctor(idDoctor, activo);
+		return ResponseEntity.noContent().build();
+	}
 
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponseDto> actualizarUsuario(

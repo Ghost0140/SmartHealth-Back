@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import java.security.Principal;
 
 import com.smarthealth.chat.dto.ChatMessageDTO;
 import com.smarthealth.chat.model.MensajeChat;
@@ -19,7 +20,8 @@ public class ChatController {
     private ChatService chatService;
 
     @MessageMapping("/mensaje")
-    public void enviarMensaje(ChatMessageDTO dto) {
+    public void enviarMensaje(ChatMessageDTO dto, Principal principal) {
+		dto.setEmisor(principal.getName());
 
         MensajeChat guardado =
                 chatService.guardarMensaje(dto);

@@ -15,6 +15,7 @@ import com.smarthealth.auth.dto.LoginResponseDto;
 import com.smarthealth.auth.dto.ResetClaveDto;
 import com.smarthealth.auth.dto.UsuarioAutenticadoDto;
 import com.smarthealth.auth.dto.UsuarioCreateDto;
+import com.smarthealth.auth.dto.UsuarioDoctorCreateDto;
 import com.smarthealth.auth.dto.UsuarioResponseDto;
 import com.smarthealth.auth.dto.UsuarioUpdateDto;
 import com.smarthealth.auth.entity.RolEntity;
@@ -40,7 +41,6 @@ public class UsuarioService {
 	private final UsuarioMapper mapper;
 	
 	private final ClienteDoctorFeign clienteDoctor;
-
 	private final BCryptPasswordEncoder passwordEncoder;
 
 	private final JwtUtil jwtUtil;
@@ -74,18 +74,9 @@ public class UsuarioService {
 	    if (!usuario.getActivo()) {
 	        throw new RuntimeException("El usuario está inactivo");
 	    }
-	    
-		if ("DOCTOR".equals(usuario.getRol().getNombre()) && usuario.getIdDoctor() != null) {
-			DoctorFeign doctor = clienteDoctor.obtenerDoctorPorId(usuario.getIdDoctor());
-
-			if (!doctor.activo()) {
-				throw new RuntimeException("El doctor asociado está inactivo");
-			}
+		if (!passwordEncoder.matches(dto.clave(), usuario.getClave())) {
+			throw new RuntimeException("Credenciales incorrectas");
 		}
-
-	    if (!passwordEncoder.matches(dto.clave(), usuario.getClave())) {
-	        throw new RuntimeException("Credenciales incorrectas");
-	    }
 
 	    String token = jwtUtil.generateToken(usuario);
 
@@ -102,7 +93,7 @@ public class UsuarioService {
     @PreAuthorize("hasRole('ADMIN')")
 	public UsuarioResponseDto registrarUsuario(UsuarioCreateDto dto) {
 		if (usuarioRepo.existsByCorreo(dto.correo())) {
-		    throw new RuntimeException("El correo ya está registrado");
+		    throw new IllegalStateException("El correo ya está registrado");
 		}
 		
 		RolEntity rol = rolRepo
@@ -119,13 +110,16 @@ public class UsuarioService {
 			}
 
 		    if (usuarioRepo.existsByIdDoctor(dto.idDoctor())) {
-		        throw new RuntimeException("El doctor ya tiene un usuario asociado");
+		        throw new IllegalStateException("El doctor ya tiene un usuario asociado");
 		    }
 
 		    try {
 		        DoctorFeign doctor = clienteDoctor.obtenerDoctorPorId(dto.idDoctor());
 				if (!doctor.activo()) {
 					throw new RuntimeException("El doctor está inactivo");
+				}
+				if (doctor.email() == null || !doctor.email().trim().equalsIgnoreCase(dto.correo().trim())) {
+					throw new IllegalArgumentException("El correo de acceso debe coincidir con el correo del doctor");
 				}
 			} catch (FeignException.NotFound e) {
 				throw new RuntimeException("El doctor no existe");
@@ -137,7 +131,7 @@ public class UsuarioService {
 				throw new RuntimeException("Solo un usuario con rol DOCTOR puede tener idDoctor");
 			}
 		}
-		
+
 		UsuarioEntity usuario = mapper.toEntity(dto, rol);
 		
 		usuario.setClave(passwordEncoder.encode(dto.clave()));
@@ -146,16 +140,69 @@ public class UsuarioService {
 		
 		return mapper.toResponseDto(guardado);
 	}
-	
+
 	@Transactional
-    @PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('ADMIN')")
+	public UsuarioResponseDto registrarUsuarioDoctor(UsuarioDoctorCreateDto dto) {
+		if (usuarioRepo.existsByCorreo(dto.correo())) {
+			throw new IllegalStateException("El correo ya está registrado");
+		}
+		if (usuarioRepo.existsByIdDoctor(dto.idDoctor())) {
+			throw new IllegalStateException("El doctor ya tiene un usuario asociado");
+		}
+		RolEntity rol = rolRepo.findByNombre("DOCTOR")
+				.orElseThrow(() -> new RuntimeException("El rol DOCTOR no está configurado"));
+		if (!rol.getActivo()) {
+			throw new RuntimeException("El rol DOCTOR está inactivo");
+		}
+
+		UsuarioCreateDto datosUsuario = new UsuarioCreateDto(
+				dto.correo(), dto.clave(), rol.getIdRol(), dto.idDoctor());
+		UsuarioEntity usuario = mapper.toEntity(datosUsuario, rol);
+		usuario.setClave(passwordEncoder.encode(dto.clave()));
+		return mapper.toResponseDto(usuarioRepo.save(usuario));
+	}
+
+	@Transactional
+	@PreAuthorize("hasRole('ADMIN')")
+	public void actualizarCorreoDoctor(Integer idDoctor, String correo) {
+		if (correo == null || correo.isBlank()) {
+			throw new RuntimeException("El correo es obligatorio");
+		}
+		usuarioRepo.findByIdDoctor(idDoctor).ifPresent(usuario -> {
+			String correoNormalizado = correo.trim();
+			if (usuarioRepo.existsByCorreoAndIdUsuarioNot(correoNormalizado, usuario.getIdUsuario())) {
+				throw new IllegalStateException("El correo ya está registrado");
+			}
+			usuario.setCorreo(correoNormalizado);
+			usuarioRepo.save(usuario);
+		});
+	}
+
+	@Transactional
+	@PreAuthorize("hasRole('ADMIN')")
+	public void actualizarEstadoDoctor(Integer idDoctor, boolean activo) {
+		usuarioRepo.findByIdDoctor(idDoctor).ifPresent(usuario -> {
+			usuario.setActivo(activo);
+			usuarioRepo.save(usuario);
+		});
+	}
+
+	@Transactional
+	@PreAuthorize("hasRole('ADMIN')")
 	public Optional<UsuarioResponseDto> actualizarUsuario(Integer id, UsuarioUpdateDto dto) {
 		return usuarioRepo.findByIdWithRol(id).map(usuario -> {
 		    if (usuarioRepo.existsByCorreoAndIdUsuarioNot(dto.correo(), id)) {
 		        throw new RuntimeException("El correo ya está registrado");
 		    }
 
-		    mapper.updateEntity(dto, usuario);
+			if ("DOCTOR".equals(usuario.getRol().getNombre()) && usuario.getIdDoctor() != null) {
+				DoctorFeign doctor = clienteDoctor.obtenerDoctorPorId(usuario.getIdDoctor());
+				if (doctor.email() == null || !doctor.email().trim().equalsIgnoreCase(dto.correo().trim())) {
+					throw new IllegalArgumentException("Actualiza el correo desde el perfil del doctor para mantener sincronizado el acceso");
+				}
+			}
+			mapper.updateEntity(dto, usuario);
 
 		    usuarioRepo.save(usuario);
 

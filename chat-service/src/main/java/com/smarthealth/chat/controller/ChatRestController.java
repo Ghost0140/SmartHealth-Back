@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
 import com.smarthealth.chat.dto.ChatMessageDTO;
 import com.smarthealth.chat.model.MensajeChat;
 import com.smarthealth.chat.service.ChatService;
@@ -28,10 +28,14 @@ public class ChatRestController {
     private ChatService service;
 
     @GetMapping("/mensajes")
-    public List<MensajeChat> listarMensajes(@RequestParam(required = false) String usuario) {
-        return usuario == null || usuario.isBlank()
-                ? service.listarMensajes()
-                : service.listarMensajesRecibidos(usuario);
+    public List<MensajeChat> listarMensajes(Authentication authentication) {
+		String rol = authentication.getAuthorities().stream()
+				.findFirst()
+				.orElseThrow()
+				.getAuthority()
+				.replaceFirst("^ROLE_", "")
+				.toLowerCase();
+		return service.listarMensajesUsuario(authentication.getName(), rol);
     }
 
     @PostMapping("/mensajes/sistema")

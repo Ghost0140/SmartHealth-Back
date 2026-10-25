@@ -15,6 +15,9 @@ import com.smarthealth.doctor.entity.EspecialidadEntity;
 import com.smarthealth.doctor.mapper.DoctorMapper;
 import com.smarthealth.doctor.repository.DoctorRepository;
 import com.smarthealth.doctor.repository.EspecialidadRepository;
+import com.smarthealth.doctor.feign.AuthUserClient;
+import com.smarthealth.doctor.dto.UsuarioDoctorCreateDto;
+import feign.FeignException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,9 +30,11 @@ public class DoctorService {
     private final EspecialidadRepository especialidadRepo;
     
     private final DoctorMapper mapper;
+
+	private final AuthUserClient authUserClient;
     
     @Transactional(readOnly = true)
-    @PreAuthorize("hasAnyRole('ADMIN','RECEPCIONISTA')")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPCIONISTA','DOCTOR')")
     public List<DoctorResponseDto> listarDoctores(Boolean activo) {
         List<DoctorEntity> doctores =
                 activo == null
@@ -50,12 +55,14 @@ public class DoctorService {
                 .map(mapper::toResponseDto);
     }
     
-    @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public DoctorResponseDto registrarDoctor(DoctorCreateDto dto) {
         if (doctorRepo.existsByDni(dto.dni())) {
-            throw new RuntimeException("El DNI ya existe.");
+            throw new IllegalStateException("El DNI ya existe.");
         }
+		if (doctorRepo.existsByEmailIgnoreCase(dto.email().trim())) {
+			throw new IllegalStateException("El correo ya está asociado a otro doctor.");
+		}
 
         EspecialidadEntity especialidad = especialidadRepo
                 .findByIdEspecialidadAndActivoTrue(dto.idEspecialidad())
@@ -63,22 +70,57 @@ public class DoctorService {
 
         DoctorEntity entidad = mapper.toEntity(dto, especialidad);
 
-        DoctorEntity guardado = doctorRepo.save(entidad);
+        DoctorEntity guardado = doctorRepo.saveAndFlush(entidad);
+        DoctorResponseDto respuesta = mapper.toResponseDto(guardado);
 
-        return mapper.toResponseDto(guardado);
+		try {
+			authUserClient.crearUsuarioDoctor(new UsuarioDoctorCreateDto(
+					dto.email().trim(), dto.claveInicial(), guardado.getIdDoctor()));
+		} catch (FeignException e) {
+			eliminarPerfilSiFalloLaCuenta(guardado.getIdDoctor());
+			if (e.status() == 409) {
+				throw new IllegalStateException("El correo ya tiene una cuenta o este doctor ya tiene usuario.", e);
+			}
+			throw new RuntimeException(
+					"No se pudo crear la cuenta del doctor (Auth respondió HTTP " + e.status() + "). "
+							+ "Detalle: " + e.contentUTF8(), e);
+		}
+
+        return respuesta;
     }
+
+	private void eliminarPerfilSiFalloLaCuenta(Integer idDoctor) {
+		try {
+			doctorRepo.deleteById(idDoctor);
+		} catch (RuntimeException errorEliminacion) {
+			throw new RuntimeException(
+					"Auth no creó la cuenta y tampoco se pudo revertir el perfil del doctor " + idDoctor
+							+ ". Revisa el registro manualmente.", errorEliminacion);
+		}
+	}
     
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
 	public Optional<DoctorResponseDto> actualizarDoctor(Integer id, DoctorUpdateDto dto) {
 		return doctorRepo.findByIdWithEspecialidad(id).map(doctor -> {
+			if (doctorRepo.existsByEmailIgnoreCaseAndIdDoctorNot(dto.email().trim(), id)) {
+				throw new IllegalStateException("El correo ya está asociado a otro doctor.");
+			}
 			EspecialidadEntity especialidad = especialidadRepo
 					.findByIdEspecialidadAndActivoTrue(dto.idEspecialidad())
 					.orElseThrow(() -> new RuntimeException("La especialidad no existe o está inactiva."));
 
+			String correoAnterior = doctor.getEmail();
 			mapper.updateEntity(dto, doctor, especialidad);
 
-			DoctorEntity guardado = doctorRepo.save(doctor);
+			DoctorEntity guardado = doctorRepo.saveAndFlush(doctor);
+			if (correoAnterior == null || !correoAnterior.equalsIgnoreCase(dto.email().trim())) {
+				try {
+					authUserClient.actualizarCorreoDoctor(id, dto.email().trim());
+				} catch (FeignException e) {
+					throw new RuntimeException("No se pudo sincronizar el correo de acceso del doctor.", e);
+				}
+			}
 
 			return mapper.toResponseDto(guardado);
 		});
@@ -91,7 +133,12 @@ public class DoctorService {
         if (existente.isPresent()) {
             DoctorEntity doctor = existente.get();
             doctor.setActivo(false);
-            doctorRepo.save(doctor);
+            doctorRepo.saveAndFlush(doctor);
+			try {
+				authUserClient.actualizarEstadoDoctor(id, false);
+			} catch (FeignException e) {
+				throw new RuntimeException("No se pudo desactivar la cuenta de acceso del doctor.", e);
+			}
             return true;
         }
         return false;
@@ -104,7 +151,12 @@ public class DoctorService {
         if (existente.isPresent()) {
             DoctorEntity doctor = existente.get();
             doctor.setActivo(true);
-            doctorRepo.save(doctor);
+            doctorRepo.saveAndFlush(doctor);
+			try {
+				authUserClient.actualizarEstadoDoctor(id, true);
+			} catch (FeignException e) {
+				throw new RuntimeException("No se pudo reactivar la cuenta de acceso del doctor.", e);
+			}
             return true;
         }
         return false;

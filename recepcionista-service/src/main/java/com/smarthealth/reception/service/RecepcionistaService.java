@@ -25,7 +25,7 @@ public class RecepcionistaService {
 	private final RecepcionistaMapper mapper;
 	
 	@Transactional(readOnly = true)
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','DOCTOR','RECEPCIONISTA')")
 	public List<RecepcionistaResponseDto> listarRecepcionista(Boolean activo) {
 		List<RecepcionistaEntity> reception =
 	            activo == null
