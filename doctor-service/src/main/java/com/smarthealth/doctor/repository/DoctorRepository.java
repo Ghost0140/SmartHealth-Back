@@ -12,6 +12,10 @@ public interface DoctorRepository extends JpaRepository<DoctorEntity, Integer> {
 
 	boolean existsByDni(String dni);
 
+	boolean existsByEmailIgnoreCase(String email);
+
+	boolean existsByEmailIgnoreCaseAndIdDoctorNot(String email, Integer idDoctor);
+
 	@Query("""
 			SELECT d
 			FROM DoctorEntity d

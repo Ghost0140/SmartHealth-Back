@@ -24,7 +24,7 @@ CREATE TABLE doctores (
     apellidos VARCHAR(100) NOT NULL,
     dni CHAR(8) NOT NULL UNIQUE,
     telefono CHAR(9) NOT NULL,
-    email VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
     disponible BOOLEAN NOT NULL DEFAULT TRUE,
     activo BOOLEAN NOT NULL DEFAULT TRUE,
     CONSTRAINT fk_doctores_especialidad

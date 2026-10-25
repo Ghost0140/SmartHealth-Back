@@ -17,6 +17,9 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
 	boolean existsByCorreoAndIdUsuarioNot(String correo, Integer idUsuario);
 	
 	boolean existsByIdDoctor(Integer idDoctor);
+
+	Optional<UsuarioEntity> findByIdDoctor(Integer idDoctor);
+
 	
 	@Query("""
 			SELECT u

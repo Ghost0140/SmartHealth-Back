@@ -16,6 +16,16 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+	@ExceptionHandler(IllegalStateException.class)
+	public ResponseEntity<Map<String, Object>> handleConflict(IllegalStateException ex, HttpServletRequest request) {
+		Map<String, Object> body = new HashMap<>();
+		body.put("status", HttpStatus.CONFLICT.value());
+		body.put("error", "Conflicto de datos");
+		body.put("message", ex.getMessage());
+		body.put("path", request.getRequestURI());
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+	}
+
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
 		Map<String, String> errores = new HashMap<>();

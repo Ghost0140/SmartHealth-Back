@@ -19,7 +19,7 @@ public class DoctorMapper {
 		doctor.setApellidos(dto.apellidos());
 		doctor.setDni(dto.dni());
 		doctor.setTelefono(dto.telefono());
-		doctor.setEmail(dto.email());
+		doctor.setEmail(dto.email().trim());
 		doctor.setDisponible(true);
 		doctor.setActivo(true);
 

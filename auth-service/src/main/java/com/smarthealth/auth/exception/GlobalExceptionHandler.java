@@ -16,6 +16,28 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<Map<String, Object>> handleInvalidArgument(IllegalArgumentException ex, HttpServletRequest request) {
+		Map<String, Object> body = new HashMap<>();
+		body.put("timestamp", LocalDateTime.now());
+		body.put("status", HttpStatus.BAD_REQUEST.value());
+		body.put("error", "Solicitud inválida");
+		body.put("message", ex.getMessage());
+		body.put("path", request.getRequestURI());
+		return ResponseEntity.badRequest().body(body);
+	}
+
+	@ExceptionHandler(IllegalStateException.class)
+	public ResponseEntity<Map<String, Object>> handleConflict(IllegalStateException ex, HttpServletRequest request) {
+		Map<String, Object> body = new HashMap<>();
+		body.put("timestamp", LocalDateTime.now());
+		body.put("status", HttpStatus.CONFLICT.value());
+		body.put("error", "Conflicto de datos");
+		body.put("message", ex.getMessage());
+		body.put("path", request.getRequestURI());
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+	}
+
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
 		Map<String, String> errores = new HashMap<>();
