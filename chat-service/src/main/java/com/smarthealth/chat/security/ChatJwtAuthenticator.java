@@ -1,6 +1,6 @@
 package com.smarthealth.chat.security;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 
 import javax.crypto.SecretKey;
@@ -17,8 +17,16 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class ChatJwtAuthenticator {
 
-	private static final SecretKey SIGNING_KEY = Keys.hmacShaKeyFor(
-			"clave_super_secreta_de_256_bits!".getBytes(StandardCharsets.UTF_8));
+	private final SecretKey signingKey;
+
+	public ChatJwtAuthenticator(
+			@org.springframework.beans.factory.annotation.Value("${security.jwt.secret-base64}") String secretBase64) {
+		byte[] secret = Base64.getDecoder().decode(secretBase64);
+		if (secret.length < 32) {
+			throw new IllegalArgumentException("La clave JWT debe tener al menos 32 bytes (256 bits)");
+		}
+		this.signingKey = Keys.hmacShaKeyFor(secret);
+	}
 
 	public Authentication authenticate(String authorization) {
 		if (authorization == null || !authorization.startsWith("Bearer ")) {
@@ -26,7 +34,7 @@ public class ChatJwtAuthenticator {
 		}
 
 		Claims claims = Jwts.parserBuilder()
-				.setSigningKey(SIGNING_KEY)
+				.setSigningKey(signingKey)
 				.build()
 				.parseClaimsJws(authorization.substring(7))
 				.getBody();

@@ -1,6 +1,6 @@
 package com.smarthealth.auth.security;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
@@ -13,20 +13,19 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 
 @Component
 public class JwtUtil {
-	
-	private static final String SECRET_STRING = "clave_super_secreta_de_256_bits!";
-	private static final long EXPIRATION = 1000L * 60L * 60L * 8L;
-    private SecretKey key;
+	private static final long EXPIRATION = 1000L * 60L * 30L;
+    private final SecretKey key;
 
-	@PostConstruct
-	public void init() {
-		key = Keys.hmacShaKeyFor(SECRET_STRING.getBytes(StandardCharsets.UTF_8));
-	}
-
+    public JwtUtil(@org.springframework.beans.factory.annotation.Value("${security.jwt.secret-base64}") String secretBase64) {
+        byte[] secret = Base64.getDecoder().decode(secretBase64);
+        if (secret.length < 32) {
+            throw new IllegalArgumentException("La clave JWT debe tener al menos 32 bytes (256 bits)");
+        }
+        this.key = Keys.hmacShaKeyFor(secret);
+    }
     public String generateToken(UsuarioEntity usuario) {
         return Jwts.builder()
                 .setSubject(usuario.getCorreo())
