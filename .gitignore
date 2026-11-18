@@ -43,3 +43,8 @@ Desktop.ini
 ### Maven Wrapper (Opcional, si no lo quieres versionar)
 .mvn/wrapper/maven-wrapper.jar
 /.metadata/
+
+# Secretos locales
+.env
+.env.*
+!.env.example
